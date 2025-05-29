@@ -1,0 +1,26 @@
+{
+  "name": "ats-backend",
+  "version": "1.0.0",
+  "description": "The purpose of this document is to define the requirements for a web-based Job and Candidate ",
+  "keywords": [
+    "ATS",
+    "SRS",
+    "Interview",
+    "Candidate"
+  ],
+  "homepage": "https://github.com/Vivek-pawar1411/Application-Tracking-System#readme",
+  "bugs": {
+    "url": "https://github.com/Vivek-pawar1411/Application-Tracking-System/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Vivek-pawar1411/Application-Tracking-System.git"
+  },
+  "license": "ISC",
+  "author": "NRT",
+  "type": "commonjs",
+  "main": "ment System for NewRise Technosys. The system will streamline job postings, candidate ",
+  "scripts": {
+    "test": " automated resume shortlisting using an AI-powered Applicant Tracking System (ATS), "
+  }
+}
