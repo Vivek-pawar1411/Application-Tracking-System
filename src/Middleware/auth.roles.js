@@ -1,8 +1,11 @@
+// This module defines user roles and a function to check if a user has admin access.
+
+// Description: This module defines user roles and a function to check if a user has admin access.
 const Roles = {
-  ADMIN: 'admin',
-  HR: 'hr',
-  INTERVIEWER: 'interviewer',
-  CANDIDATE: 'candidate',
+  ADMIN: 'Admin',
+  HR: 'Hr',
+  INTERVIEWER: 'Interviewer',
+  CANDIDATE: 'Candidate',
 };
 
 /**
@@ -11,6 +14,8 @@ const Roles = {
  * 
  * @param {Object} user - user object with a 'role' property
  */
+
+// Description: This module defines user roles and a function to check if a user has admin access.
 function checkAdminAccess(user) {
   if (!user) {
     throw new Error('Unauthorized: No user found');

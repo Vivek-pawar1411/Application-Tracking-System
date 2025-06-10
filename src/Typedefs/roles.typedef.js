@@ -1,3 +1,6 @@
+
+// This file defines the GraphQL type definitions for roles in the application.
+// It includes the Role type, queries to fetch roles, and mutations to create roles.
 const { gql } = require('apollo-server-express');
 
 const roleTypeDefs = gql`
@@ -14,6 +17,7 @@ const roleTypeDefs = gql`
   }
 
   extend type Mutation {
+    
     createRole(name: String!, description: String): Role       
   }
 `;

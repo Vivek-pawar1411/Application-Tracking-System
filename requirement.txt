@@ -19,3 +19,8 @@ typeorm   //TypeScript ORM that supports MySQL and helps manage database entitie
  "@graphql-tools/merge"
 
  "bcrypt": "^6.0.0",
+
+
+   http://localhost:5000/graphql
+
+   npm run seed:roles

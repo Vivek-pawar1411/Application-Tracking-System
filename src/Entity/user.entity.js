@@ -1,3 +1,6 @@
+
+// This file defines the User entity schema for TypeORM.
+// Description: This file defines the User entity schema for TypeORM.
 const { EntitySchema } = require("typeorm");
 
 const User = new EntitySchema({
@@ -22,11 +25,20 @@ const User = new EntitySchema({
       type: "varchar",
       nullable: false,
     },
+    contact: {
+      type: "varchar",
+      nullable: true,
+    },
+    
     created_at: {
       type: "timestamp",
       default: () => "CURRENT_TIMESTAMP",
     },
   },
+
+
+  //relationships with roles.
+  // The user can have multiple roles, and roles can be assigned to multiple users.
   relations: {
     roles: {
       type: "many-to-many",

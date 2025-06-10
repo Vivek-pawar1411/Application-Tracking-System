@@ -1,3 +1,5 @@
+// This file defines the Role entity schema for TypeORM.
+
 const { EntitySchema } = require("typeorm");
 
 const Role = new EntitySchema({
@@ -23,6 +25,8 @@ const Role = new EntitySchema({
       default: () => "CURRENT_TIMESTAMP",
     },
   },
+
+  // Relationships with users.
   relations: {
     users: {
       type: "many-to-many",
