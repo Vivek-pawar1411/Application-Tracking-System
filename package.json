@@ -19,8 +19,33 @@
   "license": "ISC",
   "author": "NRT",
   "type": "commonjs",
-  "main": "ment System for NewRise Technosys. The system will streamline job postings, candidate ",
+  "main": "index.js ",
   "scripts": {
-    "test": " automated resume shortlisting using an AI-powered Applicant Tracking System (ATS), "
+    "dev": "nodemon index.js",
+    "start": "node index.js",
+    "test": "echo \"No test specified\" && exit 0",
+    "seed:all": "node src/seeder/mainseed.js",
+    "typeorm": "typeorm-ts-node-commonjs",
+    "migration:generate": "typeorm migration:generate -d ./typeorm.config.js ./src/migration/CreateUserTable",
+    "migration:run": "typeorm migration:run -d ./typeorm.config.js",
+    "migration:revert": "typeorm migration:revert -d typeorm.config.js"
+  },
+  "dependencies": {
+    "@apollo/server": "^4.12.2",
+    "@graphql-tools/merge": "^9.0.24",
+    "apollo-server-express": "^3.13.0",
+    "bcrypt": "^6.0.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.5.0",
+    "express": "^4.21.2",
+    "graphql": "^16.11.0",
+    "graphql-tag": "^2.12.6",
+    "jsonwebtoken": "^9.0.2",
+    "mysql": "^2.18.1",
+    "typeorm": "^0.3.24"
+  },
+  "devDependencies": {
+    "get-graphql-schema": "^2.1.2",
+    "nodemon": "^3.1.10"
   }
 }

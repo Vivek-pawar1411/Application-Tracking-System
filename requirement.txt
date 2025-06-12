@@ -1,0 +1,26 @@
+@apollo/server  //A fully-featured GraphQL server for building APIs using Apollo Server v4.
+
+cors  //Middleware for enabling Cross-Origin Resource Sharing in Express applications.
+
+dotenv  //Loads environment variables from a .env file into process.env.
+
+express  //Fast, minimalist web framework for Node.js to build server-side applications.
+
+graphql  //Core GraphQL library used to define schemas and execute queries/mutations.
+
+graphql-tag  //Parses GraphQL queries from string literals into document nodes for use in clients/servers.
+
+jsonwebtoken  //Used to generate and verify JSON Web Tokens (JWT) for authentication and authorization.
+
+mysql   //Node.js driver for connecting and interacting with MySQL databases.
+
+typeorm   //TypeScript ORM that supports MySQL and helps manage database entities, migrations, and queries.
+
+ "@graphql-tools/merge"
+
+ "bcrypt": "^6.0.0",
+
+
+   http://localhost:5000/graphql
+
+   npm run seed:roles
