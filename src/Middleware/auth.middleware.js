@@ -35,7 +35,7 @@ function getUserFromToken(authHeader) {
 
     return user;
   } catch (err) {
-    console.log("❌ Token verification failed:", err.message);
+    //console.log("❌ Token verification failed:", err.message);
     return null;
   }
 }
