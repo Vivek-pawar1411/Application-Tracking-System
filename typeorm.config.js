@@ -1,5 +1,6 @@
 const { User } = require('./src/user/user.entity'); // Import the user entity
 const { Role } = require('./src/roles/roles.entity'); // Import the role entity
+const {Permission} = require('./src/permission/permission.entity'); // Import the permission entity
 const { DataSource } = require("typeorm");
 require("dotenv").config();
 
@@ -10,7 +11,7 @@ const AppDataSource = new DataSource({
   username: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_DATABASE,
-  entities: [User,Role], // Register the user entity
+  entities: [User,Role,Permission], // Register the user entity
   migrations: ["src/migrations/*.js"], // ✅ FIXED path
   synchronize: false,
 });

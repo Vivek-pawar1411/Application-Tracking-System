@@ -3,6 +3,7 @@
 const { DataSource } = require('typeorm');
 const { User } = require('../Entity/user.entity');
 const { Role } = require('../Entity/roles.entity');
+const { Permission } = require('../Entity/permission.entity');
 require('dotenv').config();
 
 const AppDataSource = new DataSource({
@@ -12,7 +13,7 @@ const AppDataSource = new DataSource({
     username: process.env.DB_USER,
     password: process.env.DB_PASSWORD,
     database: process.env.DB_DATABASE,
-    entities: [User, Role], // Register the user entity
+    entities: [User, Role,Permission], // Register the user entity
     synchronize: true, // Automatically synchronize the database schema
 
 })

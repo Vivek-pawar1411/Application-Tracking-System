@@ -23,4 +23,9 @@ typeorm   //TypeScript ORM that supports MySQL and helps manage database entitie
 
    http://localhost:5000/graphql
 
-   npm run seed:roles
+  for run seeder files
+   npm run seed:all
+
+  for server running 
+  npm run dev
+  
