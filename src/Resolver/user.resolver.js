@@ -50,6 +50,23 @@ const userResolvers = {
   },
 
   Mutation: {
+      updateUser: async (_, { id, input }) => {
+      const userRepo = AppDataSource.getRepository(User);  
+      const user = await userRepo.findOne({ where: { id } });
+
+      if (!user) {
+        throw new Error(`User with ID ${id} not found`);
+      }
+
+      // Hash password if it's being updated
+      if (input.password) {
+        input.password = await bcrypt.hash(input.password, 10);
+      }
+
+      Object.assign(user, input);
+      return await userRepo.save(user);
+    },
+
     // Add a new user with roles
     addUser: async (_, { name, email, password, roleIds, contact }) => {
       const userRepo = AppDataSource.getRepository(User);
@@ -146,6 +163,8 @@ const userResolvers = {
       }; // 👈 map roles to role_names
     },
   },
-};
+   
+  };
+
 
 module.exports = userResolvers;
