@@ -26,6 +26,8 @@ const Permission = new EntitySchema({
       updateDate: true,
     },
   },
+
+  // Define the many-to-many relationship with Role
   relations: {
     roles: {
       target: "Role",

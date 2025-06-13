@@ -34,6 +34,17 @@ const Role = new EntitySchema({
       inverseSide: "roles", // do not use joinTable here
     },
   },
+
+  // Relationship with Permission
+  relations:{
+    permissions:{
+      type:"many-to-many",
+      target: "Permission",
+      inverseSide: "roles",
+    }
+  }
+   
+
 });
 
 module.exports = { Role };
