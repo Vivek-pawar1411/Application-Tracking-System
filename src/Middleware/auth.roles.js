@@ -8,24 +8,25 @@ const Roles = {
   CANDIDATE: 'Candidate',
 };
 
+
 /**
- * Middleware-like function to check if user is admin.
- * Throws error if user is not admin.
+ * Function to check if the user has one of the allowed roles
  * 
- * @param {Object} user - user object with a 'role' property
+ * @param {Object} user - User object that includes a 'role' property
+ * @param {Array<string>} allowedRoles - List of roles that have access
  */
 
 // Description: This module defines user roles and a function to check if a user has admin access.
-function checkAdminAccess(user) {
+function checkAccessByRole(user, allowedRoles = []) {
   if (!user) {
     throw new Error('Unauthorized: No user found');
   }
-  if (user.role !== Roles.ADMIN) {
+  if (!allowedRoles.includes(user.role)) {
     throw new Error(`${user.role} is not authorized to perform this action`);
   }
 }
 
 module.exports = {
   Roles,
-  checkAdminAccess,
+  checkAccessByRole,
 };

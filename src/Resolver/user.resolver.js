@@ -1,15 +1,13 @@
-// This file contains the user-related GraphQL resolvers
-const { checkAdminAccess } = require("../Middleware/auth.roles");
-const { User } = require("../Entity/user.entity"); // Import user entity for TypeORM
-const { auth } = require("../Middleware/auth.middleware"); // Authentication middleware
-const { AppDataSource } = require("../database/db"); // Adjust path as needed
+const { checkAccessByRole, Roles } = require("../Middleware/auth.roles");
+const { User } = require("../Entity/user.entity");
+const { auth } = require("../Middleware/auth.middleware");
+const { AppDataSource } = require("../database/db");
 const bcrypt = require("bcrypt");
 
 const userResolvers = {
   Query: {
-    // Fetch all users with their roles
     users: async (_, __, context) => {
-      checkAdminAccess(context.user); // Ensure the user has admin access
+      checkAccessByRole(context.user, [Roles.ADMIN, Roles.HR]);
 
       const userRepo = AppDataSource.getRepository(User);
       const users = await userRepo.find({ relations: ["roles"] });
@@ -20,19 +18,16 @@ const userResolvers = {
       }));
     },
 
-    // Fetch a user by ID with their roles
     userbyid: async (_, { id }, context) => {
-      // Ensure the user is authenticated and authorized to access this data
       if (!context.user) {
         throw new Error("Unauthorized");
       }
-      // Check if the authenticated user is trying to access their own data
+
       if (String(context.user.id) !== String(id)) {
         throw new Error("Forbidden: You can only access your own data");
       }
 
       const userRepo = AppDataSource.getRepository(User);
-      // Fetch the user by ID and include their roles
       const user = await userRepo.findOne({
         where: { id: Number(id) },
         relations: ["roles"],
@@ -45,33 +40,17 @@ const userResolvers = {
       return {
         ...user,
         role_names: user.roles.map((role) => role.name),
-      }; // 👈 map roles to role_names
+      };
     },
   },
 
   Mutation: {
-      updateUser: async (_, { id, input }) => {
-      const userRepo = AppDataSource.getRepository(User);  
-      const user = await userRepo.findOne({ where: { id } });
+    addUser: async (_, { name, email, password, roleIds, contact }, context) => {
+      checkAccessByRole(context.user, [Roles.ADMIN]);
 
-      if (!user) {
-        throw new Error(`User with ID ${id} not found`);
-      }
-
-      // Hash password if it's being updated
-      if (input.password) {
-        input.password = await bcrypt.hash(input.password, 10);
-      }
-
-      Object.assign(user, input);
-      return await userRepo.save(user);
-    },
-
-    // Add a new user with roles
-    addUser: async (_, { name, email, password, roleIds, contact }) => {
       const userRepo = AppDataSource.getRepository(User);
       const roleRepo = AppDataSource.getRepository("Role");
-      // Basic validations
+
       if (!name || name.trim().length < 3) {
         throw new Error("Name must be at least 3 characters long");
       }
@@ -89,23 +68,21 @@ const userResolvers = {
         throw new Error("At least one role must be selected");
       }
 
-      const contactRegex = /^[6-9]\d{9}$/; // Indian mobile format example
+      const contactRegex = /^[6-9]\d{9}$/;
       if (!contact || !contactRegex.test(contact)) {
         throw new Error("Invalid contact number");
       }
 
-      // Check if the user already exists
       const existingUser = await userRepo.findOneBy({ email });
       if (existingUser) {
         throw new Error("User with this email already exists");
       }
 
       const roles = await roleRepo.findByIds(roleIds);
-
       if (roles.length !== roleIds.length) {
         throw new Error("One or more roles not found");
       }
-      // Hash the password before saving
+
       const hashedPassword = await bcrypt.hash(password, 10);
 
       const newUser = userRepo.create({
@@ -115,17 +92,16 @@ const userResolvers = {
         roles,
         contact,
       });
-      // Save the new user to the database
+
       const savedUser = await userRepo.save(newUser);
       console.log("User created successfully:", savedUser);
 
-      return { ...savedUser, role_names: roles.map((role) => role.name) }; // 👈 map roles to role_ids
+      return { ...savedUser, role_names: roles.map((role) => role.name) };
     },
 
-    //login mutation for user authentication
     login: async (_, { email, password }) => {
       const userRepo = AppDataSource.getRepository(User);
-      // Manual input validation
+
       if (!email || typeof email !== "string") {
         throw new Error("Email is required and must be a string");
       }
@@ -138,33 +114,95 @@ const userResolvers = {
       if (!password || password.length < 6) {
         throw new Error("Password must be at least 6 characters long");
       }
+
       const user = await userRepo.findOne({
         where: { email },
         relations: ["roles"],
-      }); // For production, hash password and use bcrypt.compare()
+      });
 
       if (!user) {
         throw new Error("Invalid credentials");
       }
 
       const isMatch = await bcrypt.compare(password, user.password);
+      if (!isMatch) {
+        throw new Error("Invalid credentials");
+      }
 
       const token = auth({
         id: user.id,
         name: user.name,
         email: user.email,
-        role: user.roles[0]?.name, // ✅ embed role
+        role: user.roles[0]?.name,
         contact: user.contact,
       });
+
       return {
         ...user,
         token,
         role_names: user.roles.map((role) => role.name),
-      }; // 👈 map roles to role_names
+      };
+    },
+
+    updateUser: async (_, { id, input }, context) => {
+      if (!context.user) {
+        throw new Error("Unauthorized");
+      }
+
+      if (String(context.user.id) !== String(id)) {
+        throw new Error("Forbidden: You can only access your own data");
+      }
+
+      const userRepo = AppDataSource.getRepository(User);
+      const user = await userRepo.findOne({ where: { id }, relations: ["roles"] });
+
+      if (!user) {
+        throw new Error(`User with ID ${id} not found`);
+      }
+
+      if (input.password) {
+        input.password = await bcrypt.hash(input.password, 10);
+      }
+
+      Object.assign(user, input);
+      const updatedUser = await userRepo.save(user);
+      console.log("User updated successfully:", updatedUser);
+
+      return {
+        ...updatedUser,
+        role_names: updatedUser.roles.map((role) => role.name),
+      };
+    },
+
+    deleteUser: async (_, { id }, context) => {
+      const { user } = context;
+
+      if (!user) {
+        throw new Error("Unauthorized");
+      }
+
+      const isSelf = String(user.id) === String(id);
+      const isAdminOrHR = [Roles.ADMIN, Roles.HR].includes(user.role);
+
+      if (!isSelf && !isAdminOrHR) {
+        throw new Error("Forbidden: You can only delete your own account or must be Admin/HR");
+      }
+
+      const userRepo = AppDataSource.getRepository(User);
+      const userToDelete = await userRepo.findOne({ where: { id } });
+
+      if (!userToDelete) {
+        throw new Error(`User with ID ${id} not found`);
+      }
+
+      console.log(
+        `User Deleted: '${userToDelete.name}' (ID: ${userToDelete.id}) by '${user.name}' (Role: ${user.role}, ID: ${user.id})`
+      );
+
+      await userRepo.remove(userToDelete);
+      return `User with ID ${id} has been deleted`;
     },
   },
-   
-  };
-
+};
 
 module.exports = userResolvers;

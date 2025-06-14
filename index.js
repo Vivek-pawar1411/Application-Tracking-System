@@ -28,7 +28,7 @@ async function startServer() {
         context: async ({ req }) => {
           const authHeader = req.headers.authorization || '';
           const user = getUserFromToken(authHeader);
-          return { user };
+            return { user: user || null }; // ✅ always return 'user'
         }
       })
     );
