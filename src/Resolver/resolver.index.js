@@ -10,3 +10,4 @@ const resolvers = mergeResolvers([userResolvers, roleResolvers, permissionResolv
 
 
 module.exports = resolvers;
+

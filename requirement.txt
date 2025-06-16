@@ -21,6 +21,10 @@ typeorm   //TypeScript ORM that supports MySQL and helps manage database entitie
  "bcrypt": "^6.0.0",
 
 
+"nodemailer": "^7.0.3",
+
+
+
    http://localhost:5000/graphql
 
   for run seeder files

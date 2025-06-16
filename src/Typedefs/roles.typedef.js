@@ -14,6 +14,7 @@ const roleTypeDefs = gql`
 
   extend type Query {
     roles: [Role]
+    rolesbyid(id: ID!): Role
   }
 
   extend type Mutation {

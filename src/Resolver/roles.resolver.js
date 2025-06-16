@@ -13,6 +13,10 @@ const roleResolvers = {
     roles: async () => {
       return await roleRepository.find();
     },
+
+    rolesbyid: async (_, { id }) => {
+      return await roleRepository.findOne({ where: { id } });
+    },
   },
   // Mutation resolvers for Role entity
   Mutation: {
@@ -27,6 +31,7 @@ const roleResolvers = {
         throw new Error("Description must be a string");
       }
       const newRole = roleRepository.create({ name, description });
+
       return await roleRepository.save(newRole);
     },
   },

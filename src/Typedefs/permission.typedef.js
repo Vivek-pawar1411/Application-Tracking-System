@@ -31,7 +31,7 @@ const permissiontypedef = gql`
   extend type Mutation {
     assignPermissionToRole(roleId: ID!, permissionIds: [ID!]!): Role
     createPermission(input: CreatePermissionInput!): Permission
-    # //updatePermission(id: ID!, input: CreatePermissionInput!): Permission
+    updatePermission(id: ID!, input: CreatePermissionInput!): Permission
     deletePermission(id: ID!): String
   }
 `;
