@@ -23,6 +23,8 @@ const userResolvers = {
         relations: ["roles"],
       });
       if (!user) throw new Error("User not found");
+  // checkVerified(user); // 🔐 Optional, based on your access policy
+
       return formatUserWithRoles(user);
     },
   },
@@ -101,6 +103,7 @@ const userResolvers = {
       if (!user || !(await comparePassword(password, user.password))) {
         throw new Error("Invalid credentials");
       }
+        checkVerified(user); // ✅ Only verified users can log in
 
       const token = generateToken(user);
       return { ...user, token, role_names: user.roles.map((r) => r.name) };
@@ -112,7 +115,9 @@ const userResolvers = {
 
       const userRepo = getRepo("User");
       const user = await userRepo.findOne({ where: { id }, relations: ["roles"] });
+
       if (!user) throw new Error(`User with ID ${id} not found`);
+        checkVerified(user); // ✅ Enforce verification before allowing update
 
       if (input.password) {
         input.password = await hashPassword(input.password);

@@ -27,6 +27,7 @@ async function seedUser() {
     password: hashedPassword,
     roles: [adminRole],
     contact: "7415792359",
+    isverified:1,
   });
 
   await userRepository.save(user);

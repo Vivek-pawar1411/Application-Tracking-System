@@ -22,6 +22,7 @@ const typeDefs = gql`
     verified: Boolean!
     user: user!
   }
+  
 
   input UpdateUserInput {
     name: String
