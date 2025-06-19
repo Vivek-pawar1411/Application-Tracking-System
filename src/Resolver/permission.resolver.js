@@ -51,6 +51,8 @@ const permissionResolvers = {
       const newPermission = permissionRepo.create(input);
       return await permissionRepo.save(newPermission);
     },
+
+
     // updatePermission: async (_, { id, input }) => {
     //   const permission = await permissionRepo.findOne({ where: { id } });
     //   if (!permission) {
@@ -59,6 +61,8 @@ const permissionResolvers = {
     //   Object.assign(permission, input);
     //   return await permissionRepo.save(permission);
     // },
+    
+
     deletePermission: async (_, { id }) => {
       await permissionRepo.delete(id);
       return `Permission with ID ${id} deleted`;
