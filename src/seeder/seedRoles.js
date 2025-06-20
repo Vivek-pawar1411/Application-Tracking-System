@@ -5,24 +5,34 @@ async function seedRoles() {
   const roleRepo = AppDataSource.getRepository(Role);
 
   const predefinedRoles = [
-    { name: "Admin", description: " Administrator with full access" },
-    { name: "Hr", description: "Human Resources Role" },
-    { name: "Interviewer", description: "Interviewer Role" },
-    { name: "Candidate", description: "Candidate applying for jobs" },
+    {
+      name: "Master Admin",
+      description: "Full system control access for Master Admin",
+      slug: "master-admin",
+      status: true,
+      userType: "master_admin",
+    },
+    {
+      name: "Super Admin",
+      description: "System-wide administrative privileges",
+      slug: "super-admin",
+      status: true,
+      userType: "super_admin",
+    },
   ];
 
   for (const roleData of predefinedRoles) {
-    const existing = await roleRepo.findOneBy({ name: roleData.name });
+    const existing = await roleRepo.findOneBy({ slug: roleData.slug });
     if (!existing) {
       const role = roleRepo.create(roleData);
       await roleRepo.save(role);
-      console.log(`Inserted role: ${roleData.name}`);
+      console.log(`✅ Inserted role: ${roleData.name}`);
     } else {
-      console.log(`Role already exists: ${roleData.name}`);
+      console.log(`ℹ️ Role already exists: ${roleData.name}`);
     }
   }
 
-  console.log("Role seeding completed.");
+  console.log("🚀 Role seeding completed.");
 }
 
 module.exports = seedRoles;

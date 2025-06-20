@@ -1,6 +1,8 @@
 const { AppDataSource } = require('../database/db');
 const seedRoles = require('./seedRoles');
 const seedUser = require('./seeduser');
+const seedPermissions=require('./seedpermission')
+const seedRolePermissions=require('./seedRolePermissions')
 
 async function runAllSeeders() {
   try {
@@ -12,6 +14,12 @@ async function runAllSeeders() {
 
     console.log("🔁 Starting user seeding...");
     await seedUser();
+
+    console.log("🔁 Starting permission seeding...");
+    await seedPermissions();
+
+    console.log("🔁 Starting role permissions seeding...");
+    await seedRolePermissions();
 
     console.log("✅ All seeders executed successfully.");
   } catch (error) {

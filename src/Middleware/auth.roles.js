@@ -1,27 +1,30 @@
-// This module defines user roles and a function to check if a user has admin access.
-
-// Description: This module defines user roles and a function to check if a user has admin access.
 const Roles = {
-  ADMIN: 'Admin',
-  HR: 'Hr',
-  INTERVIEWER: 'Interviewer',
-  CANDIDATE: 'Candidate',
+  Master_Admin: "Master Admin",
+  Super_Admin: "Super Admin",
+  HR: "Hr",
+  INTERVIEWER: "Interviewer",
+  CANDIDATE: "Candidate",
 };
 
-
 /**
- * Function to check if the user has one of the allowed roles
- * 
- * @param {Object} user - User object that includes a 'role' property
- * @param {Array<string>} allowedRoles - List of roles that have access
+ * Checks if the user has one of the allowed roles.
+ *
+ * @param {Object} user - The user object containing roles.
+ * @param {Array<string>} allowedRoles - List of roles allowed to perform the action.
  */
-
-// Description: This module defines user roles and a function to check if a user has admin access.
 function checkAccessByRole(user, allowedRoles = []) {
-  if (!user) {
-    throw new Error('Unauthorized: No user found');
+  if (!user || !user.role) {
+    throw new Error("Unauthorized: No user or role found");
   }
-  if (!allowedRoles.includes(user.role)) {
+
+  // Normalize both user role(s) and allowed roles
+  const userRoles = Array.isArray(user.role) ? user.role : [user.role];
+  const userRoleNormalized = userRoles.map((r) => r.toLowerCase());
+  const allowedNormalized = allowedRoles.map((r) => r.toLowerCase());
+
+  const hasAccess = allowedNormalized.some((r) => userRoleNormalized.includes(r));
+
+  if (!hasAccess) {
     throw new Error(`${user.role} is not authorized to perform this action`);
   }
 }

@@ -1,6 +1,6 @@
 //main file for the server (Index.js)
 const express = require('express'); // Import the Express framework to create the HTTP server
-const typeDefs = require('./src/Typedefs/typedef.index'); // Import GraphQL type definitions (schema)
+const {typeDefs} = require('./src/Typedefs/typedef.index'); // Import GraphQL type definitions (schema)
 const resolvers = require('./src/Resolver/resolver.index');// Import GraphQL resolvers (functions to handle the queries/mutations)
 const { ApolloServer } = require('@apollo/server'); // Import ApolloServer for integrating GraphQL with Express
 const { expressMiddleware } = require('@apollo/server/express4'); // Apollo middleware to connect ApolloServer with Express v4
