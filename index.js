@@ -9,12 +9,19 @@ const { AppDataSource } = require('./src/database/db'); // Import the configured
 const { getUserFromToken } = require('./src/Middleware/auth.middleware'); // Import function to extract and verify user from JWT token
 
 
+// ✅ Import and run expired token cleaner (runs scheduled CRON job to delete expired tokens)
+//    This file initializes the database and sets up a cron job to clean expired JWT tokens every hour.
+require('./src/utils/expiredTokenCleaner');  // <-- This line activates automatic token cleanup
+
+
 // Async function to start the server
 async function startServer() {
   try {
     const app = express();
     app.use(express.json());     // Middleware to parse incoming JSON requests
     app.use(cors());             // Enable CORS for all routes
+
+    
 
     await AppDataSource.initialize();     // Initialize TypeORM database
     console.log('✅ Database connected successfully');

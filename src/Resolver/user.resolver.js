@@ -104,6 +104,8 @@ const userResolvers = {
 
     login: async (_, { email, password }) => {
       const userRepo = getRepo("User");
+      const tokenRepo = getRepo("Token"); // 💡 Get Token repository
+
       validateEmail(email);
       validatePassword(password);
 
@@ -111,11 +113,40 @@ const userResolvers = {
       if (!user || !(await comparePassword(password, user.password))) {
         throw new Error("Invalid credentials");
       }
-      // checkVerified(user); // ✅ Only verified users can log in
 
-      const token = generateToken(user);
-      return { ...user, token, role_names: user.roles.map((r) => r.name) };
+      // checkVerified(user); // ✅ Optional: uncomment to enforce verified users only
+
+      
+  // 🧹 Clean expired tokens before issuing new one
+  await tokenRepo
+    .createQueryBuilder()
+    .delete()
+    .from("Token")
+    .where("userId = :userId AND expiresAt < :now", {
+      userId: user.id,
+      now: new Date(),}).execute();
+
+      const token = generateToken(user); // 🔐 Issue token
+      const expiresAt = new Date(Date.now()+ 24*  60 * 60 * 1000); // 24 hour expiry
+
+      // ✅ Store token in Token table
+      await tokenRepo.save({ token, userId: user.id, expiresAt,});
+
+      // 🔐 Optional: Cleanup old tokens (max 5 tokens per user)
+      const userTokens = await tokenRepo.find({
+        where: { userId: user.id, isBlacklisted: false },
+        order: { createdAt: "ASC" }, });
+
+      if (userTokens.length > 5) {
+        const tokensToDelete = userTokens.slice(0, userTokens.length - 5);
+        for (const t of tokensToDelete) {
+          await tokenRepo.update(t.id, { isBlacklisted: true });
+        }
+      }
+
+      return { ...user,token,role_names: user.roles.map((r) => r.name), };
     },
+
 
     updateUser: async (_, { id, input }, context) => {
       checkAccessByRole(context.user, [Roles.Master_Admin]);
@@ -159,6 +190,7 @@ const userResolvers = {
       return `User with ID ${id} has been deleted`;
     },
   },
+
 };
 
 module.exports = userResolvers;

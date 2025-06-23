@@ -23,6 +23,12 @@ typeorm   //TypeScript ORM that supports MySQL and helps manage database entitie
 
 "nodemailer": "^7.0.3",
 
+  "slugify": "^1.6.6",
+
+   "node-cron": "^4.1.1",
+
+
+
 
 
    http://localhost:5000/graphql

@@ -41,6 +41,7 @@
     "graphql": "^16.11.0",
     "jsonwebtoken": "^9.0.2",
     "mysql": "^2.18.1",
+    "node-cron": "^4.1.1",
     "nodemailer": "^7.0.3",
     "slugify": "^1.6.6",
     "typeorm": "^0.3.24"
