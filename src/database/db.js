@@ -15,7 +15,7 @@ const AppDataSource = new DataSource({
     database: process.env.DB_DATABASE,
     entities: [User, Role, Permission], // Register the user entity
     migrations: ["src/migrations/*.js"],
-    synchronize: true, // Automatically synchronize the database schema
+    synchronize: false, // Automatically synchronize the database schema
 
 })
 
