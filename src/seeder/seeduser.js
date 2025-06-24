@@ -27,10 +27,8 @@ async function seedUser() {
     email: "nrt@gmail.com",
     password: hashedPassword,
     roles: [adminRole],
-    mobileNo: 7415792359,                       
-    countryCode: "+91",                         
-    userType: "admin",                          
-    status: true,                               
+    mobileNo: 7415792359,                                             
+    userType: "admin",                                                         
     is_blocked: false,                          
     isverified: true                            
   });

@@ -1,7 +1,7 @@
 const { AppDataSource } = require("../database/db");
 const { Token } = require("../Entity/token.entity");
 const { User } = require("../Entity/user.entity");
-const jwt = require("jsonwebtoken"); // ✅ Required for decoding token
+const jwt = require("jsonwebtoken");
 
 const tokenResolvers = {
   Query: {
@@ -9,7 +9,6 @@ const tokenResolvers = {
       const repo = AppDataSource.getRepository(Token);
       return await repo.find();
     },
-
     tokenById: async (_, { userId }) => {
       const repo = AppDataSource.getRepository(Token);
       return await repo.find({ where: { userId } });
@@ -17,12 +16,12 @@ const tokenResolvers = {
   },
 
   Mutation: {
- logout: async (_, { token }) => {
-  try {
-    const tokenRepo = AppDataSource.getRepository(Token);
-    const userRepo = AppDataSource.getRepository(User);
+  logout: async (_, { token }) => {
+  const tokenRepo = AppDataSource.getRepository(Token);
+  const userRepo = AppDataSource.getRepository(User);
 
-    // 1. Verify token
+  try {
+    // 1. Verify JWT token
     let payload;
     try {
       payload = jwt.verify(token, process.env.SECRET_KEY || "superkey");
@@ -32,30 +31,34 @@ const tokenResolvers = {
       return { success: false, message: "Invalid or expired token" };
     }
 
-    // 2. Find and blacklist token
-    const tokenEntry = await tokenRepo.findOne({ where: { token } });
-    if (!tokenEntry) {
-      return { success: false, message: "Token not found" };
-    }
+    const userId = payload.id;
 
-    tokenEntry.isBlacklisted = true;
-    await tokenRepo.save(tokenEntry);
+    // 2. Blacklist all tokens of this user (logout from all sessions)
+    await tokenRepo.update(
+      { userId, isBlacklisted: false },
+      { isBlacklisted: true }
+    );
+    console.log(`🔒 All tokens for user ${userId} have been blacklisted`);
 
-    // 3. Update user status and verification
-    const user = await userRepo.findOne({ where: { id: payload.id } });
+    // 3. Optional: Update user status
+    const user = await userRepo.findOne({ where: { id: userId } });
     if (user) {
       user.status = false;
       user.isverified = false;
       await userRepo.save(user);
+      console.log(`🔄 User ${userId} status set to inactive`);
     }
 
     return {
       success: true,
-      message: "Logged out successfully",
+      message: "Logged out from all sessions successfully",
     };
   } catch (error) {
     console.error("❌ Logout mutation failed:", error.message);
-    return { success: false, message: "Logout failed" };
+    return {
+      success: false,
+      message: error.message || "Unexpected error during logout",
+    };
   }
 }
   },

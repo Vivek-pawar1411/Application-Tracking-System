@@ -8,14 +8,11 @@ const typeDefs = gql`
     email: String!
     password: String!
     role_names: [String!]!
-    countryCode: String!         
     mobileNo: String!                          
-    userType: String!            
-    status: Boolean!             
+    userType: String!                        
     is_blocked: Boolean!         
     created_at: String!
-    updated_at: String!          
-    deletedAt: String            
+    updated_at: String!                    
     token: String
   }
 
@@ -51,7 +48,7 @@ const typeDefs = gql`
   type Mutation {
     addUser(
       firstName: String!,lastName: String!,email: String!,password: String!,roleIds: [Int!]!
-       countryCode: String!,mobileNo: String!  ,userType: String): user
+     ,mobileNo: String!  ,userType: String): user
     login(email: String!, password: String!): user
     updateUser(id: ID!, input: UpdateUserInput!): user
     deleteUser(id: ID!): String

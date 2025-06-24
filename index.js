@@ -34,7 +34,7 @@ async function startServer() {
       expressMiddleware(server, {
         context: async ({ req }) => {
           const authHeader = req.headers.authorization || '';
-          const user = getUserFromToken(authHeader);
+          const user = await  getUserFromToken(authHeader);
             return { user: user || null }; // ✅ always return 'user'
         }
       })

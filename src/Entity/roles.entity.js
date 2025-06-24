@@ -45,10 +45,7 @@ const Role = new EntitySchema({
       default: () => "CURRENT_TIMESTAMP",
       onUpdate: "CURRENT_TIMESTAMP",
     },
-    deleted_at: {
-      type: "datetime",
-      nullable: true,
-    },
+  
   },
 
   relations: {

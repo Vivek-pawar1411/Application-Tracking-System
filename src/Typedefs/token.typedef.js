@@ -24,7 +24,7 @@ const tokentypeDefs = gql`
 
   type Mutation {
    
-   logout(token: String!): LogoutResponse!
+   logout(token: String!):LogoutResponse!
   }
 `;
 

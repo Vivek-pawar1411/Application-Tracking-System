@@ -29,11 +29,7 @@ const User = new EntitySchema({
       type: "varchar",
       nullable: false,
     },
-    countryCode: { // added field
-      type: "varchar",
-      length: 120,
-      nullable: false,
-    },
+    
     mobileNo: { // added field
       type: "bigint",
       nullable: false,
@@ -45,10 +41,7 @@ const User = new EntitySchema({
       nullable: false,
       default: "user",
     },
-    status: { // added field
-      type: "boolean",
-      default: true,
-    },
+  
     is_blocked: { // added field
       type: "boolean",
       nullable: false,
@@ -75,10 +68,7 @@ const User = new EntitySchema({
       default: () => "CURRENT_TIMESTAMP",
       onUpdate: "CURRENT_TIMESTAMP",
     },
-    deletedAt: { // added field
-      type: "timestamp",
-      nullable: true,
-    },
+   
   },
 
   relations: {

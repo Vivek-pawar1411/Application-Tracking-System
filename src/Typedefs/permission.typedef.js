@@ -22,7 +22,6 @@ const permissiontypedef = gql`
     userType: String!
     created_at: String
     updated_at: String
-    deleted_at: String
     permissions: [Permission]
   }
 
