@@ -1,76 +1,63 @@
 const { AppDataSource } = require("../database/db");
 const { Permission } = require("../Entity/permission.entity");
-const slugify = require("slugify"); // Install via: npm install slugify
 
-async function seedPermissions() {
-  const permissionRepo = AppDataSource.getRepository(Permission);
+const seedPermissions = async () => {
+  try {
+    // await AppDataSource.initialize();
+    // console.log("📦 Database connected.");
+      console.log("🚀 Seeding permissions...");
+    const permissionRepository = AppDataSource.getRepository(Permission);
 
-  const permissions = [
-    {
-      name: "read",
-      permission_group: "Dashboard",
-      description: "Permission to read the dashboard",
-    },
-    {
-      name: "create",
-      permission_group: "User",
-      description: "Permission to create users",
-    },
-    {
-      name: "read",
-      permission_group: "User",
-      description: "Permission to view users",
-    },
-    {
-      name: "update",
-      permission_group: "User",
-      description: "Permission to update users",
-    },
-    {
-      name: "delete",
-      permission_group: "User",
-      description: "Permission to delete users",
-    },
-  ];
+    const permissionGroups = [
+      {
+        group: "User Management",
+        actions: ["create", "read", "update", "delete"],
+      },
+      {
+        group: "Role Management",
+        actions: ["create", "read", "update", "delete"],
+      },
+      {
+        group: "Job Management",
+        actions: ["create", "read", "update", "delete"],
+      },
+      {
+        group: "Application Review",
+        actions: ["read", "update"],
+      },
+    ];
 
-  for (const perm of permissions) {
-    const slug = slugify(`${perm.name} ${perm.permission_group}`, { lower: true });
+    const permissions = [];
 
-    let existing = await permissionRepo.findOne({
-      where: { slug },
-      withDeleted: false,
-    });
-
-    if (!existing) {
-      const newPerm = permissionRepo.create({
-        name: perm.name,
-        permission_group: perm.permission_group,
-        slug,
-        description: perm.description,
-        is_blocked: false, // ✅ NEW FIELD
-      });
-      await permissionRepo.save(newPerm);
-      console.log(`✅ Inserted: ${slug}`);
-    } else {
-      if (
-        existing.name !== perm.name ||
-        existing.permission_group !== perm.permission_group ||
-        existing.description !== perm.description ||
-        existing.is_blocked !== false
-      ) {
-        existing.name = perm.name;
-        existing.permission_group = perm.permission_group;
-        existing.description = perm.description;
-        existing.is_blocked = false; // ✅ NEW FIELD
-        await permissionRepo.save(existing);
-        console.log(`🔁 Updated: ${slug}`);
-      } else {
-        console.log(`⚠️ Exists & Up-to-date: ${slug}`);
+    for (const pg of permissionGroups) {
+      for (const action of pg.actions) {
+        const slug = `${pg.group.toLowerCase().replace(/\s+/g, "_")}_${action}`;
+        permissions.push({
+          name: `${action.charAt(0).toUpperCase() + action.slice(1)} ${pg.group}`,
+          slug: slug,
+          permission_group: pg.group,
+          description: `${action} permission for ${pg.group}`,
+        });
       }
     }
-  }
 
-  console.log("🎉 Permission seeding completed.");
-}
+    for (const perm of permissions) {
+      const exists = await permissionRepository.findOneBy({ slug: perm.slug });
+      if (!exists) {
+        const newPermission = permissionRepository.create(perm);
+        await permissionRepository.save(newPermission);
+        console.log(`✅ Inserted: ${perm.slug}`);
+      } else {
+        console.log(`⚠️ Already exists: ${perm.slug}`);
+      }
+    }
+
+    console.log("🎉 Permission seeding completed.");
+    process.exit(0);
+  } catch (err) {
+    console.error("❌ Error seeding permissions:", err);
+    process.exit(1);
+  }
+};
 
 module.exports = seedPermissions;
