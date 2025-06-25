@@ -72,11 +72,11 @@ const Role = new EntitySchema({
       nullable: false,
       unique: true,
     },
-    secondary: {
-      type: "tinyint",
-      width: 1,
-      nullable: false,
-    },
+    // secondary: {
+    //   type: "tinyint",
+    //   width: 1,
+    //   nullable: false,
+    // },
     description: {
       type: "text",
       nullable: true,
