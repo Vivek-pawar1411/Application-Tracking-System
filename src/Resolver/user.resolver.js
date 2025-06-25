@@ -8,7 +8,7 @@ const { AppDataSource } = require("../database/db"); // assuming this is needed 
 const userResolvers = {
   Query: {
     users: async (_, __, context) => {
-      checkAccessByRole(context.user, [Roles.ADMIN, Roles.HR]);
+      checkAccessByRole(context.user, [Roles.Master_Admin]);
       const userRepo = getRepo("User");
       const users = await userRepo.find({ relations: ["roles"] });
       return users.map(formatUserWithRoles);
@@ -23,30 +23,34 @@ const userResolvers = {
         relations: ["roles"],
       });
       if (!user) throw new Error("User not found");
-  // checkVerified(user); // 🔐 Optional, based on your access policy
+      // checkVerified(user); // 🔐 Optional, based on your access policy
 
       return formatUserWithRoles(user);
     },
   },
 
   Mutation: {
-    addUser: async (_, { name, email, password, roleIds, contact }, context) => {
-      checkAccessByRole(context.user, [Roles.ADMIN]);
+    addUser: async (_, { firstName, lastName, email, password, roleIds,
+      countryCode, mobileNo, userType, }, context) => {
+      checkAccessByRole(context.user, [Roles.Master_Admin]);
 
       const userRepo = getRepo("User");
       const roleRepo = getRepo("Role");
 
-      validateName(name);
+      validateName(firstName); // using first name for validation
       validateEmail(email);
       validatePassword(password);
-      validateContact(contact);
+      validateContact(mobileNo);
 
       if (!Array.isArray(roleIds) || roleIds.length === 0) {
         throw new Error("At least one role must be selected");
       }
 
-      const existingUser = await userRepo.findOneBy({ email });
-      if (existingUser) throw new Error("User with this email already exists");
+      const existingUser = await userRepo.findOne({
+        where: [{ email }, { mobileNo }],
+      });
+      if (existingUser)
+        throw new Error("User with this email, mobileNo already exists");
 
       const roles = await roleRepo.findByIds(roleIds);
       if (roles.length !== roleIds.length) {
@@ -54,9 +58,13 @@ const userResolvers = {
       }
 
       const hashedPassword = await hashPassword(password);
-      const newUser = userRepo.create({ name, email, password: hashedPassword, roles, contact });
-      const savedUser = await userRepo.save(newUser);
+      const newUser = userRepo.create({
+        firstName, lastName, email,
+        password: hashedPassword, countryCode, mobileNo, userType: userType || "user", roles,
+      });
 
+      const savedUser = await userRepo.save(newUser);
+      console.log("New User added", savedUser);
       return { ...savedUser, role_names: roles.map((r) => r.name) };
     },
 
@@ -96,6 +104,8 @@ const userResolvers = {
 
     login: async (_, { email, password }) => {
       const userRepo = getRepo("User");
+      const tokenRepo = getRepo("Token"); // 💡 Get Token repository
+
       validateEmail(email);
       validatePassword(password);
 
@@ -103,13 +113,44 @@ const userResolvers = {
       if (!user || !(await comparePassword(password, user.password))) {
         throw new Error("Invalid credentials");
       }
-        checkVerified(user); // ✅ Only verified users can log in
 
-      const token = generateToken(user);
-      return { ...user, token, role_names: user.roles.map((r) => r.name) };
+      // checkVerified(user); // ✅ Optional: uncomment to enforce verified users only
+
+      
+  // 🧹 Clean expired tokens before issuing new one
+  await tokenRepo
+    .createQueryBuilder()
+    .delete()
+    .from("Token")
+    .where("userId = :userId AND expiresAt < :now", {
+      userId: user.id,
+      now: new Date(),}).execute();
+
+      const token = generateToken(user); // 🔐 Issue token
+      const expiresAt = new Date(Date.now()+ 24*  60 * 60 * 1000); // 24 hour expiry
+
+      // ✅ Store token in Token table
+      await tokenRepo.save({ token, userId: user.id, expiresAt,});
+
+      // 🔐 Optional: Cleanup old tokens (max 5 tokens per user)
+      const userTokens = await tokenRepo.find({
+        where: { userId: user.id, isBlacklisted: false },
+        order: { createdAt: "ASC" }, });
+
+      if (userTokens.length > 5) {
+        const tokensToDelete = userTokens.slice(0, userTokens.length - 5);
+        for (const t of tokensToDelete) {
+          await tokenRepo.update(t.id, { isBlacklisted: true });
+        }
+      }
+
+      return { ...user,token,role_names: user.roles.map((r) => r.name), };
     },
 
+
     updateUser: async (_, { id, input }, context) => {
+      checkAccessByRole(context.user, [Roles.Master_Admin]);
+
       checkAuth(context);
       checkOwnership(context.user, id);
 
@@ -117,7 +158,7 @@ const userResolvers = {
       const user = await userRepo.findOne({ where: { id }, relations: ["roles"] });
 
       if (!user) throw new Error(`User with ID ${id} not found`);
-        checkVerified(user); // ✅ Enforce verification before allowing update
+      checkVerified(user); // ✅ Enforce verification before allowing update
 
       if (input.password) {
         input.password = await hashPassword(input.password);
@@ -130,10 +171,12 @@ const userResolvers = {
     },
 
     deleteUser: async (_, { id }, context) => {
+      checkAccessByRole(context.user, [Roles.Master_Admin]);
+
       checkAuth(context);
       const { user } = context;
       const isSelf = String(user.id) === String(id);
-      const isAdminOrHR = [Roles.ADMIN, Roles.HR].includes(user.role);
+      const isAdminOrHR = [Roles.Master_Admin, Roles.Super_Admin].includes(user.role);
 
       if (!isSelf && !isAdminOrHR) {
         throw new Error("Forbidden: You can only delete your own account or must be Admin/HR");
@@ -147,6 +190,7 @@ const userResolvers = {
       return `User with ID ${id} has been deleted`;
     },
   },
+
 };
 
 module.exports = userResolvers;

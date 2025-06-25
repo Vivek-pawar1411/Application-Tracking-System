@@ -22,12 +22,15 @@ async function seedUser() {
   const hashedPassword = await bcrypt.hash("newrise123", 10);
 
   const user = userRepository.create({
-    name: "admin",
+    firstName: "Master",                         
+    lastName: "Admin",                           
     email: "nrt@gmail.com",
     password: hashedPassword,
     roles: [adminRole],
-    contact: "7415792359",
-    isverified:1,
+    mobileNo: 7415792359,                                             
+    userType: "admin",                                                         
+    is_blocked: false,                          
+    isverified: true                            
   });
 
   await userRepository.save(user);

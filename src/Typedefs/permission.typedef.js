@@ -56,6 +56,12 @@ const permissiontypedef = gql`
   type Role {
     id: ID!
     name: String!
+    slug: String!
+    description: String
+    status: Boolean!
+    userType: String!
+    created_at: String
+    updated_at: String
     permissions: [Permission]
   }
 
@@ -87,5 +93,4 @@ const permissiontypedef = gql`
   }
 `;
 
-module.exports = { permissiontypedef };
-
+module.exports =  permissiontypedef ;

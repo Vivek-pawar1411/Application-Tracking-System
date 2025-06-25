@@ -1,104 +1,78 @@
-// This file defines the GraphQL resolvers for the Role entity.
-// Description: This file defines the GraphQL resolvers for the Role entity.
-
-// const { AppDataSource } = require("../database/db"); // Adjust path as needed
-// const { Role } = require("../Entity/roles.entity"); // Adjust path as needed
-
-// const roleRepository = AppDataSource.getRepository("Role");
-
-// const roleResolvers = {
-//   Query: {
-//     // Fetch all roles
-//     // This resolver fetches all roles from the database.
-//     roles: async () => {
-//       return await roleRepository.find();
-//     },
-
-//     rolesbyid: async (_, { id }) => {
-//       return await roleRepository.findOne({ where: { id } });
-//     },
-//   },
-//   // Mutation resolvers for Role entity
-//   Mutation: {
-//     // Create a new role
-//     createRole: async (_, { name, description }) => {
-//       // Manual validation
-//       if (!name || name.trim().length < 3) {
-//         throw new Error("Role name must be at least 3 characters long");
-//       }
-
-//       if (description && typeof description !== "string") {
-//         throw new Error("Description must be a string");
-//       }
-//       const newRole = roleRepository.create({ name, description });
-
-//       return await roleRepository.save(newRole);
-//     },
-//   },
-// };
-
-// module.exports = roleResolvers;
-
-
 const { AppDataSource } = require("../database/db");
 const { Role } = require("../Entity/roles.entity");
+const { checkAccessByRole, Roles } = require("../Middleware/auth.roles");
 
 const roleRepository = AppDataSource.getRepository("Role");
 
+function generateSlug(name) {
+  return name.trim().toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9\-]/g, "");
+}
+
 const roleResolvers = {
   Query: {
-    // Fetch all roles
     roles: async () => {
       return await roleRepository.find();
     },
 
-    // Fetch role by ID
-    rolesById: async (_, { id }) => {
-      return await roleRepository.findOne({ where: { id } });
+    roleById: async (_, { id }) => {
+      return await roleRepository.findOne({ where: { id: parseInt(id) } });
+    },
+
+    roleBySlug: async (_, { slug }) => {
+      return await roleRepository.findOne({ where: { slug } });
     },
   },
 
   Mutation: {
-    // Create a new role with all required fields
-    createRole: async (
-      _,
-      { name, slug, secondary, description, status, userType }
-    ) => {
-      // Validations
-      if (!name || name.trim().length < 3) {
-        throw new Error("Role name must be at least 3 characters long");
-      }
+    createRole: async (_, { input }, context) => {
+checkAccessByRole(context.user, [Roles.Super_Admin, Roles.Master_Admin]);
 
-      if (!slug || slug.trim().length < 3) {
-        throw new Error("Slug is required and must be at least 3 characters long");
-      }
+      const { name, description, status, userType } = input;
 
-      if (typeof secondary !== "boolean") {
-        throw new Error("Secondary must be a boolean");
-      }
+      // if (!name || name.trim().length < 3) throw new Error("Role name must be at least 3 characters long");
+      // if (!userType || userType.trim().length < 3) throw new Error("userType must be at least 3 characters long");
+      if (typeof status !== "boolean") throw new Error("Status must be a boolean");
 
-      if (typeof status !== "boolean") {
-        throw new Error("Status must be a boolean");
-      }
+      const slug = generateSlug(name);
+      const existingSlug = await roleRepository.findOne({ where: { slug } });
+      if (existingSlug) throw new Error("Role with this slug already exists");
 
-      if (!userType || userType.trim().length === 0) {
-        throw new Error("UserType is required");
-      }
-
-      if (description && typeof description !== "string") {
-        throw new Error("Description must be a string");
-      }
-
-      const newRole = roleRepository.create({
-        name,
-        slug,
-        secondary,
-        description,
-        status,
-        userType,
-      });
-
+      const newRole = roleRepository.create({ name, slug, description, status, userType });
       return await roleRepository.save(newRole);
+    },
+
+    updateRole: async (_, { id, input }, context) => {
+      checkAccessByRole(context.user, [Roles.ADMIN]);
+
+      const role = await roleRepository.findOne({ where: { id: parseInt(id) } });
+      if (!role) throw new Error(`Role with ID ${id} not found`);
+
+      const { name, description, status, userType } = input;
+
+      if (name) {
+        if (name.trim().length < 3) throw new Error("Role name must be at least 3 characters long");
+        role.name = name;
+        role.slug = generateSlug(name);
+      }
+
+      if (description !== undefined) role.description = description;
+      if (status !== undefined) role.status = status;
+      if (userType) {
+        if (userType.trim().length < 3) throw new Error("userType must be at least 3 characters long");
+        role.userType = userType;
+      }
+
+      return await roleRepository.save(role);
+    },
+
+    deleteRole: async (_, { id }, context) => {
+      checkAccessByRole(context.user, [Roles.ADMIN]);
+
+      const role = await roleRepository.findOne({ where: { id: parseInt(id) } });
+      if (!role) throw new Error(`Role with ID ${id} not found`);
+
+      await roleRepository.remove(role);
+      return `Role with ID ${id} has been deleted`;
     },
   },
 };

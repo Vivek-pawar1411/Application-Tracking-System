@@ -10,6 +10,7 @@ function getRepo(entity) {
 // Check if user is authenticated
 function checkAuth(context) {
   if (!context.user) {
+     console.log("🚫 No user found in context"); 
     throw new Error("Unauthorized");
   }
 }

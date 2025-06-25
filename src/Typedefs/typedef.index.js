@@ -3,10 +3,11 @@
 const { mergeTypeDefs } = require('@graphql-tools/merge');
 const userTypeDef = require('./user.typedef');
 const roleTypeDefs = require('./roles.typedef');
-const {permissiontypedef} = require('./permission.typedef');
+const permissiontypedef = require('./permission.typedef');
+const tokenTypeDefs = require('./token.typedef');
 
-const typeDefs = mergeTypeDefs([userTypeDef, roleTypeDefs, permissiontypedef]);
+const typeDefs = mergeTypeDefs([userTypeDef, roleTypeDefs, permissiontypedef, tokenTypeDefs]);
 
 
 
-module.exports = typeDefs;
+module.exports = {typeDefs};

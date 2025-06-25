@@ -35,36 +35,33 @@ async function seedRoles() {
 
   const predefinedRoles = [
     {
-      name: "Master_Admin",
+      name: "Master Admin",
+      description: "Full system control access for Master Admin",
       slug: "master-admin",
-      description: "Administrator with full access",
-      secondary: false,
       status: true,
-      userType: "admin",
+      userType: "master_admin",
     },
     {
-      name: "Super_Admin",
+      name: "Super Admin",
+      description: "System-wide administrative privileges",
       slug: "super-admin",
-      description: "Partially access",
-      secondary: false,
       status: true,
-      userType: "admin",
+      userType: "super_admin",
     },
-    // Add more roles as needed
   ];
 
   for (const roleData of predefinedRoles) {
-    const existing = await roleRepo.findOneBy({ name: roleData.name });
+    const existing = await roleRepo.findOneBy({ slug: roleData.slug });
     if (!existing) {
       const role = roleRepo.create(roleData);
       await roleRepo.save(role);
-      console.log(`Inserted role: ${roleData.name}`);
+      console.log(`✅ Inserted role: ${roleData.name}`);
     } else {
-      console.log(`Role already exists: ${roleData.name}`);
+      console.log(`ℹ️ Role already exists: ${roleData.name}`);
     }
   }
 
-  console.log("Role seeding completed.");
+  console.log("🚀 Role seeding completed.");
 }
 
 module.exports = seedRoles;

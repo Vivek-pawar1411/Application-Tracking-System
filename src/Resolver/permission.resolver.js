@@ -79,8 +79,8 @@ const { Permission } = require("../Entity/permission.entity");
 const { Role } = require("../Entity/roles.entity");
 const { In } = require("typeorm");
 
-const permissionRepo = AppDataSource.getRepository(Permission);
-const roleRepo = AppDataSource.getRepository(Role);
+const permissionRepo = AppDataSource.getRepository("Permission");
+const roleRepo = AppDataSource.getRepository("Role");
 
 const permissionResolvers = {
   Query: {
@@ -99,11 +99,7 @@ const permissionResolvers = {
 
     // Get a role and its permissions
     roleswithPermissions: async (_, { id }) => {
-      const role = await roleRepo.findOne({
-        where: { id },
-        relations: ["permissions"],
-      });
-
+      const role = await roleRepo.findOne({ where: { id }, relations: ["permissions"] });
       if (!role) {
         throw new Error(`Role with ID ${id} not found`);
       }
@@ -113,18 +109,12 @@ const permissionResolvers = {
   },
 
   Mutation: {
-    // Assign multiple permissions to a role
     assignPermissionToRole: async (_, { roleId, permissionIds }) => {
-      const role = await roleRepo.findOne({
-        where: { id: roleId },
-        relations: ["permissions"],
-      });
+      const role = await roleRepo.findOne({ where: { id: roleId }, relations: ["permissions"] });
 
       if (!role) throw new Error(`Role with ID ${roleId} not found`);
 
-      const permissions = await permissionRepo.find({
-        where: { id: In(permissionIds) },
-      });
+      const permissions = await permissionRepo.find({ where: { id: In(permissionIds) } });
 
       if (!permissions.length)
         throw new Error(`No permissions found for the given IDs`);
@@ -143,7 +133,6 @@ const permissionResolvers = {
       return await roleRepo.save(role);
     },
 
-    // Create a new permission
     createPermission: async (_, { input }) => {
       const { name, slug, permission_group, description } = input;
 
@@ -162,18 +151,15 @@ const permissionResolvers = {
       return await permissionRepo.save(newPermission);
     },
 
-    // Update an existing permission
     updatePermission: async (_, { id, input }) => {
       const permission = await permissionRepo.findOne({ where: { id } });
       if (!permission) {
         throw new Error(`Permission with ID ${id} not found`);
       }
-
       Object.assign(permission, input);
       return await permissionRepo.save(permission);
     },
 
-    // Delete a permission
     deletePermission: async (_, { id }) => {
       const result = await permissionRepo.softDelete(id);
       if (result.affected === 0) {

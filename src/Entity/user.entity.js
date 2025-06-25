@@ -10,8 +10,14 @@ const User = new EntitySchema({
       type: "int",
       generated: true,
     },
-    name: {
+    firstName: { // added field
       type: "varchar",
+      length: 80,
+      nullable: false,
+    },
+    lastName: { // added field
+      type: "varchar",
+      length: 80,
       nullable: false,
     },
     email: {
@@ -23,9 +29,23 @@ const User = new EntitySchema({
       type: "varchar",
       nullable: false,
     },
-    contact: {
+    
+    mobileNo: { // added field
+      type: "bigint",
+      nullable: false,
+      unique: true,
+    },
+    userType: { // added field
       type: "varchar",
-      nullable: true,
+      length: 120,
+      nullable: false,
+      default: "user",
+    },
+  
+    is_blocked: { // added field
+      type: "boolean",
+      nullable: false,
+      default: false,
     },
     otp: {
       type: "varchar",
@@ -43,6 +63,12 @@ const User = new EntitySchema({
       type: "timestamp",
       default: () => "CURRENT_TIMESTAMP",
     },
+    updated_at: { // added field
+      type: "timestamp",
+      default: () => "CURRENT_TIMESTAMP",
+      onUpdate: "CURRENT_TIMESTAMP",
+    },
+   
   },
 
   relations: {
