@@ -17,7 +17,9 @@ const tokentypeDefs = gql`
     tokenById(userId: ID!): [Token!]!
   }
 
- 
+    type Mutation {
+    logout(token: String!): Boolean!
+  }
 `;
 
 module.exports =  tokentypeDefs ;
