@@ -1,6 +1,6 @@
 const Roles = {
-  Master_Admin: "Master Admin",
-  Super_Admin: "Super Admin",
+  Master_Admin: "MasterAdmin",
+  Super_Admin: "SuperAdmin",
   HR: "Hr",
   INTERVIEWER: "Interviewer",
   CANDIDATE: "Candidate",
@@ -17,10 +17,12 @@ function checkAccessByRole(user, allowedRoles = []) {
     throw new Error("Unauthorized: No user or role found");
   }
 
-  // Normalize both user role(s) and allowed roles
+  // Normalize roles (lowercase, remove underscores/spaces)
+  const normalize = (role) => role.toString().toLowerCase().replace(/[_\s]/g, '');
+
   const userRoles = Array.isArray(user.role) ? user.role : [user.role];
-  const userRoleNormalized = userRoles.map((r) => r.toLowerCase());
-  const allowedNormalized = allowedRoles.map((r) => r.toLowerCase());
+  const userRoleNormalized = userRoles.map(normalize);
+  const allowedNormalized = allowedRoles.map(normalize);
 
   const hasAccess = allowedNormalized.some((r) => userRoleNormalized.includes(r));
 

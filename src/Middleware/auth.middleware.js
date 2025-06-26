@@ -10,6 +10,10 @@ function getTokenRepo() {
   return AppDataSource.getRepository("Token");
 }
 
+function getUserRepo() {
+  return AppDataSource.getRepository("User");
+}  
+
 // ✅ Generates a JWT token for the user
 function auth(user) {
   return jwt.sign(
@@ -53,9 +57,24 @@ async function getUserFromToken(authHeader) {
       console.log("⏳ Token is expired (manually checked)");
       return null;
     }
+    
+     // ✅ Blocked user check (IMPORTANT)
+    const userRepo = getUserRepo();
+    const user = await userRepo.findOne({ where: { id: payload.id } });
+    if (!user) {
+      console.log("❌ User not found");
+      return null;
+    }
+    if (user.is_blocked) {
+      console.log("⛔ User is blocked");
+      return null;
+    }
 
+    
     console.log("✅ Token verified and valid:", payload);
     return payload;
+
+
   } catch (err) {
     console.log("❌ Token verification failed:", err.message);
     return null;

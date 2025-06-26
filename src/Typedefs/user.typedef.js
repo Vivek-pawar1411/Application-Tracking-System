@@ -26,6 +26,11 @@ const typeDefs = gql`
     verified: Boolean!
     user: user!
   }
+
+   type BlockUserResponse {
+    message: String!
+    user: user!
+  }
   
 
   input UpdateUserInput {
@@ -54,6 +59,7 @@ const typeDefs = gql`
     deleteUser(id: ID!): String
     sendotp(email: String!): OTPResponse
     verifyotp(email: String!, otp: String!): VerifyOTPResponse
+     blockUser(userId: Int!, block: Boolean!): BlockUserResponse
   }
 `;
 
