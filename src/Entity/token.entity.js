@@ -10,6 +10,7 @@ const Token = new EntitySchema({
     isBlacklisted: { type: "boolean", default: false },
     createdAt: { type: "timestamp", default: () => "CURRENT_TIMESTAMP" },
     expiresAt: { type: "timestamp" },
+    expires: { type: "boolean", default: false }, // ✅ New column
   },
   relations: {
     user: {
@@ -21,4 +22,4 @@ const Token = new EntitySchema({
   },
 });
 
-module.exports = {Token};
+module.exports = { Token };

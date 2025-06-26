@@ -1,7 +1,7 @@
 const Roles = {
   Master_Admin: "Master Admin",
   Super_Admin: "Super Admin",
-  HR: "Hr",
+  HR: "HR",
   INTERVIEWER: "Interviewer",
   CANDIDATE: "Candidate",
 };
@@ -13,19 +13,20 @@ const Roles = {
  * @param {Array<string>} allowedRoles - List of roles allowed to perform the action.
  */
 function checkAccessByRole(user, allowedRoles = []) {
-  if (!user || !user.role) {
+if (!user || !user.roles || user.roles.length === 0) {
     throw new Error("Unauthorized: No user or role found");
   }
 
-  // Normalize both user role(s) and allowed roles
-  const userRoles = Array.isArray(user.role) ? user.role : [user.role];
-  const userRoleNormalized = userRoles.map((r) => r.toLowerCase());
-  const allowedNormalized = allowedRoles.map((r) => r.toLowerCase());
 
-  const hasAccess = allowedNormalized.some((r) => userRoleNormalized.includes(r));
+   const userRoles = user.roles.map(r => r.name.toLowerCase());
+  const allowedNormalized = allowedRoles.map(r => r.toLowerCase());
+
+  const hasAccess = allowedNormalized.some(role =>
+    userRoles.includes(role)
+  );
 
   if (!hasAccess) {
-    throw new Error(`${user.role} is not authorized to perform this action`);
+    throw new Error(`${userRoles.join(", ")} is not authorized to perform this action`);
   }
 }
 

@@ -3,9 +3,11 @@ const { mergeResolvers } = require('@graphql-tools/merge');
 const userResolvers = require('./user.resolver');
 const roleResolvers = require('./roles.resolver');
 const permissionResolvers = require('./permission.resolver');
-const {tokenResolvers} = require('./token.resolver');
+const tokenResolvers = require('./token.resolver');
+const jobsResolvers = require('./jobs.resolver');
 
-const resolvers = mergeResolvers([userResolvers, roleResolvers, permissionResolvers, tokenResolvers]);
+const resolvers = mergeResolvers([userResolvers, roleResolvers,
+                     permissionResolvers,tokenResolvers, jobsResolvers]);
 
 
 
