@@ -14,6 +14,35 @@ const typeDefs = gql`
     created_at: String!
     updated_at: String!                    
     token: String
+  } 
+   type UsersListResponse {
+    data: [user]!
+    pagination: PaginationInfo!
+   filters: UserFilterInfo!
+  }
+
+  type UserFilterInfo {
+    search: String
+    isverified: Boolean
+    userType: user
+    roleId: Int
+    sortBy: String!
+    sortOrder: String!
+  }
+     type BlockUserResponse {
+    message: String!
+    user: user!
+  }
+
+  type PaginationInfo {
+    currentPage: Int!
+    limit: Int!
+    totalCount: Int!
+    totalPages: Int!
+    hasNextPage: Boolean!
+    hasPreviousPage: Boolean!
+    nextPage: Int
+    previousPage: Int
   }
 
   type OTPResponse {
@@ -41,7 +70,16 @@ const typeDefs = gql`
   }
 
   type Query {
-    users: [user]
+      usersList(
+      page: Int = 1
+      limit: Int = 10
+      search: String
+      isverified: Boolean
+      userType: String
+      roleId: Int
+      sortBy: String = "created_at"
+      sortOrder: String = "DESC"
+    ): UsersListResponse!
     userbyid(id: ID!): user
   }
 
@@ -54,6 +92,7 @@ const typeDefs = gql`
     deleteUser(id: ID!): String
     sendotp(email: String!): OTPResponse
     verifyotp(email: String!, otp: String!): VerifyOTPResponse
+    blockUser(userId: Int!, block: Boolean!): BlockUserResponse
   }
 `;
 

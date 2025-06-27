@@ -45,7 +45,6 @@ const Role = new EntitySchema({
       default: () => "CURRENT_TIMESTAMP",
       onUpdate: "CURRENT_TIMESTAMP",
     },
-  
   },
 
   relations: {
@@ -54,10 +53,24 @@ const Role = new EntitySchema({
       target: "User",
       inverseSide: "roles",
     },
+
     permissions: {
       type: "many-to-many",
       target: "Permission",
+      joinTable: {
+        name: "role_permission",
+        joinColumn: {
+          name: "role_id",
+          referencedColumnName: "id",
+        },
+        inverseJoinColumn: {
+          name: "permission_id",
+          referencedColumnName: "id",
+        },
+      },
       inverseSide: "roles",
+      cascade: true,
+      eager: true, // Optional: load permissions automatically
     },
   },
 });

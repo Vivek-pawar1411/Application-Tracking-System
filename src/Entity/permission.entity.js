@@ -2,7 +2,7 @@ const { EntitySchema } = require("typeorm");
 
 const Permission = new EntitySchema({
   name: "Permission",
-  tableName: "permissions", // ✅ match table name exactly
+  tableName: "permissions",
   columns: {
     id: {
       primary: true,
@@ -18,7 +18,7 @@ const Permission = new EntitySchema({
       type: "varchar",
       length: 155,
       nullable: false,
-      unique: true, // ✅ per schema
+      unique: true,
     },
     permission_group: {
       type: "varchar",
@@ -40,25 +40,14 @@ const Permission = new EntitySchema({
     deleted_at: {
       type: "datetime",
       nullable: true,
-      deleteDate: true, // optional for soft delete support
+      deleteDate: true,
     },
   },
 
   relations: {
     roles: {
-      target: "Role",
       type: "many-to-many",
-      joinTable: {
-        name: "role_permission", // ✅ intermediate table
-        joinColumn: {
-          name: "permission_id",
-          referencedColumnName: "id",
-        },
-        inverseJoinColumn: {
-          name: "role_id",
-          referencedColumnName: "id",
-        },
-      },
+      target: "Role",
       inverseSide: "permissions",
     },
   },

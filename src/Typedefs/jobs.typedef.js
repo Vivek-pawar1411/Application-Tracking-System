@@ -1,12 +1,13 @@
 const { gql } = require("apollo-server-express");
 
 const jobTypeDefs = gql`
-      type User {
+  type User {
     id: ID!
-    name: String
+    firstName: String
+    lastName: String
     email: String
-    # Add more fields if needed
   }
+
   type Job {
     id: ID!
     title: String!
@@ -20,7 +21,7 @@ const jobTypeDefs = gql`
     posted_date: String!
     closing_date: String
     created_at: String
-    created_by: user!  # assuming User type is defined
+    created_by: User!
   }
 
   input CreateJobInput {
@@ -34,7 +35,7 @@ const jobTypeDefs = gql`
     status: Boolean
     posted_date: String!
     closing_date: String
-    created_by: Int!  # user ID
+    created_by: Int!
   }
 
   input UpdateJobInput {
@@ -50,12 +51,48 @@ const jobTypeDefs = gql`
     closing_date: String
   }
 
-  type Query {
-    allJobs: [Job!]!
+  type JobPagination {
+    data: [Job!]!
+    pagination: PaginationInfo!
+    filters: JobFilterInfo
+  }
+
+  type PaginationInfo {
+    currentPage: Int!
+    limit: Int!
+    totalCount: Int!
+    totalPages: Int!
+    hasNextPage: Boolean!
+    hasPreviousPage: Boolean!
+    nextPage: Int
+    previousPage: Int
+  }
+
+  type JobFilterInfo {
+    search: String
+    department: String
+    location: String
+    status: Boolean
+    sortBy: String
+    sortOrder: String
+  }
+
+  extend type Query {
+    jobList(
+      page: Int
+      limit: Int
+      search: String
+      department: String
+      location: String
+      status: Boolean
+      sortBy: String
+      sortOrder: String
+    ): JobPagination!
+
     jobById(id: ID!): Job
   }
 
-  type Mutation {
+  extend type Mutation {
     createJob(data: CreateJobInput!): Job!
     updateJob(id: ID!, data: UpdateJobInput!): Job!
     deleteJob(id: ID!): Boolean!

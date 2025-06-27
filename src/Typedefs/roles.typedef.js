@@ -32,7 +32,44 @@ const roleTypeDefs = gql`
     roles: [Role]
     roleById(id: ID!): Role
     roleBySlug(slug: String!): Role
+    rolesList(
+    page: Int = 1
+    limit: Int = 10
+    search: String
+    status: Boolean
+    userType: String
+    sortBy: String = "created_at"
+    sortOrder: String = "DESC"
+  ): RolesListResponse!
   }
+
+
+
+
+type RolesListResponse {
+  data: [Role!]!
+  pagination: PaginationInfo!
+  filters: FilterInfo!
+}
+
+type PaginationInfo {
+  currentPage: Int!
+  limit: Int!
+  totalCount: Int!
+  totalPages: Int!
+  hasNextPage: Boolean!
+  hasPreviousPage: Boolean!
+  nextPage: Int
+  previousPage: Int
+}
+
+type FilterInfo {
+  search: String
+  status: Boolean
+  userType: String
+  sortBy: String!
+  sortOrder: String!
+}
 
   extend type Mutation {
     createRole(input: CreateRoleInput!): Role

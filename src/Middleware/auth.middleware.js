@@ -15,7 +15,7 @@ function auth(user) {
   return jwt.sign(
     { id: user.id, email: user.email, name: user.name, role: user.role },
     SECRET_KEY,
-    { expiresIn: "24h" }
+    { expiresIn: "8h" }
   );
 }
 
@@ -68,6 +68,7 @@ async function getUserFromToken(authHeader) {
   }
 
   const token = authHeader.split(" ")[1];
+  console.log("🔍 Extracted token:", token);
   if (!token) {
     console.log("❌ Token missing in header");
     return null;
