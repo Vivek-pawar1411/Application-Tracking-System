@@ -1,4 +1,4 @@
-const {gql}= require('apollo-server-express');
+const { gql } = require('apollo-server-express');
 
 const tokentypeDefs = gql`
   type Token {
@@ -8,18 +8,25 @@ const tokentypeDefs = gql`
     isBlacklisted: Boolean!
     createdAt: String!
     expiresAt: String
+    expires: Boolean!   # ✅ newly added field
   }
+  type LogoutResponse {
+  success: Boolean!
+  message: String!
+}
 
-  
+
 
   type Query {
-    alltoken: [Token!]!
+    alltoken: [Token]
     tokenById(userId: ID!): [Token!]!
   }
 
-    type Mutation {
-    logout(token: String!): Boolean!
+      type Mutation {
+    logout(token: String!): LogoutResponse!
   }
+
+
 `;
 
-module.exports =  tokentypeDefs ;
+module.exports = tokentypeDefs;

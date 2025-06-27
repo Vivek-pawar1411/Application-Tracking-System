@@ -79,8 +79,49 @@ const permissiontypedef = gql`
     description: String
   }
 
+  input PermissionFilters {
+    search: String
+    permission_group: String
+    sortBy: String
+    sortOrder: String
+    page: Int
+    limit: Int
+  }
+
+  type PermissionPagination {
+    currentPage: Int
+    limit: Int
+    totalCount: Int
+    totalPages: Int
+    hasNextPage: Boolean
+    hasPreviousPage: Boolean
+    nextPage: Int
+    previousPage: Int
+  }
+
+  type PermissionListResponse {
+    data: [Permission]
+    pagination: PermissionPagination
+    filters: PermissionFiltersOutput
+  }
+
+  type PermissionFiltersOutput {
+    search: String
+    permission_group: String
+    sortBy: String
+    sortOrder: String
+  }
+
   extend type Query {
-    permissions: [Permission]
+    permissionList(
+      page: Int
+      limit: Int
+      search: String
+      permission_group: String
+      sortBy: String
+      sortOrder: String
+    ): PermissionListResponse
+
     permission(id: ID!): Permission
     roleswithPermissions(id: ID!): Role
   }
@@ -93,4 +134,4 @@ const permissiontypedef = gql`
   }
 `;
 
-module.exports =  permissiontypedef ;
+module.exports = permissiontypedef;

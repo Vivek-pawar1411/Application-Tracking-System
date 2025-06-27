@@ -4,6 +4,7 @@ const { User } = require('../Entity/user.entity');
 const { Role } = require('../Entity/roles.entity');
 const { Token } = require('../Entity/token.entity');
 const { Permission } = require('../Entity/permission.entity');
+const {Jobs} = require('../Entity/jobs.entity');
 require('dotenv').config();
 
 const AppDataSource = new DataSource({
@@ -13,9 +14,9 @@ const AppDataSource = new DataSource({
   username: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_DATABASE,
-  entities: [User, Role, Permission, Token],
+  entities: [User, Role, Permission, Token, Jobs],
   migrations: ['src/migrations/*.js'],
-  synchronize: false,
+  synchronize: true,
 });
 
 module.exports = { AppDataSource }; // ✅ MUST be exported this way
