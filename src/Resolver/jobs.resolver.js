@@ -101,7 +101,7 @@ const jobResolvers = {
     },
 
     updateJob: async (_, { id, data }, context) => {
-      await checkAccessByRole(context.user, [Roles.HR]);
+      await checkAccessByRole(context.user, [Roles.HR, Roles.Master_Admin]);
 
       const repo = AppDataSource.getRepository(Jobs);
       const job = await repo.findOne({ where: { id: parseInt(id) } });
@@ -112,7 +112,7 @@ const jobResolvers = {
     },
 
     deleteJob: async (_, { id }, context) => {
-      await checkAccessByRole(context.user, [Roles.HR, Roles.INTERVIEWER]);
+      await checkAccessByRole(context.user, [Roles.HR, Roles.Master_Admin]);
 
       const repo = AppDataSource.getRepository(Jobs);
       const job = await repo.findOne({ where: { id: parseInt(id) } });
