@@ -88,7 +88,7 @@ const jobResolvers = {
 
   Mutation: {
     createJob: async (_, { data }, context) => {
-      await checkAccessByRole(context.user, [Roles.HR,Roles.INTERVIEWER]);
+      await checkAccessByRole(context.user, [Roles.HR,Roles.Master_Admin]);
 
       const userRepo = AppDataSource.getRepository(User);
       const creator = await userRepo.findOneBy({ id: data.created_by });
