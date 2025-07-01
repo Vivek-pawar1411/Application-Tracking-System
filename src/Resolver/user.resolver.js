@@ -1,6 +1,6 @@
 const { checkAccessByRole, Roles } = require("../Middleware/auth.roles");
 const {validateEmail,validateContact,validatePassword,validateName,} = require("../utils/validation");
-const {getRepo,checkAuth,checkOwnership,hashPassword,
+const {getRepo,checkAuth,checkOwnership,hashPassword,checkVerified,
             comparePassword,generateToken,formatUserWithRoles,} = require("../utils/helper");
 const { sendOTP } = require("../verifyotp/send_otp");
 const { AppDataSource } = require("../database/db");
@@ -228,7 +228,7 @@ const userResolvers = {
     },
 
     updateUser: async (_, { id, input }, context) => {
-      checkAccessByRole(context.user, [Roles.Master_Admin]);
+       checkAccessByRole(context.user, [Roles.Master_Admin, Roles.Super_Admin, Roles.HR,  Roles.INTERVIEWER, Roles.CANDIDATE]);
       checkAuth(context);
       checkOwnership(context.user, id);
 
