@@ -5,9 +5,10 @@ const roleResolvers = require('./roles.resolver');
 const permissionResolvers = require('./permission.resolver');
 const tokenResolvers = require('./token.resolver');
 const jobsResolvers = require('./jobs.resolver');
+const meetingResolvers = require('./meeting.resolver');
 
 const resolvers = mergeResolvers([userResolvers, roleResolvers,
-                     permissionResolvers,tokenResolvers, jobsResolvers]);
+                     permissionResolvers,tokenResolvers, jobsResolvers, meetingResolvers]);
 
 
 
