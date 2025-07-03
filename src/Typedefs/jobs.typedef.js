@@ -74,7 +74,7 @@ const jobTypeDefs = gql`
     location: String
     status: Boolean
     sortBy: String
-    sortOrder: String
+   
   }
 
   extend type Query {
@@ -86,7 +86,7 @@ const jobTypeDefs = gql`
       location: String
       status: Boolean
       sortBy: String
-      sortOrder: String
+      
     ): JobPagination!
 
     jobById(id: ID!): Job

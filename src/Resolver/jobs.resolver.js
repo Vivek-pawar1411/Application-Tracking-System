@@ -72,7 +72,7 @@ const jobResolvers = {
             location: location || null,
             status: status !== undefined ? status : null,
             sortBy: sortField,
-            sortOrder: order
+           
           }
         };
       } catch (err) {
@@ -88,7 +88,7 @@ const jobResolvers = {
 
   Mutation: {
     createJob: async (_, { data }, context) => {
-      await checkAccessByRole(context.user, [Roles.HR,Roles.Master_Admin]);
+      await checkAccessByRole(context.user, [Roles.Master_Admin, Roles.HR]);
 
       const userRepo = AppDataSource.getRepository(User);
       const creator = await userRepo.findOneBy({ id: data.created_by });

@@ -6,9 +6,10 @@ const roleTypeDefs = require('./roles.typedef');
 const permissiontypedef = require('./permission.typedef');
 const tokenTypeDefs = require('./token.typedef');
 const jobsTypeDefs = require('./jobs.typedef');
+const meetingTypeDefs = require('./meeting.typedef');
 
 const typeDefs = mergeTypeDefs([userTypeDef, roleTypeDefs, permissiontypedef,
-                                     tokenTypeDefs, jobsTypeDefs]);
+                                     tokenTypeDefs, jobsTypeDefs, meetingTypeDefs]);
 
 
 

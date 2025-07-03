@@ -83,7 +83,7 @@ const typeDefs = gql`
       userType: String
       roleId: Int
       sortBy: String = "created_at"
-      sortOrder: String = "DESC"
+      
     ): UsersListResponse!
     userbyid(id: ID!): user
   }
