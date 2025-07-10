@@ -106,7 +106,7 @@ const roleResolvers = {
     },
 
     updateRole: async (_, { id, input }, context) => {
-      checkAccessByRole(context.user, [Roles.ADMIN]);
+      checkAccessByRole(context.user, [Roles.Super_Admin,Roles.Master_Admin]);
 
       const role = await roleRepository.findOne({ where: { id: parseInt(id) } });
       if (!role) throw new Error(`Role with ID ${id} not found`);

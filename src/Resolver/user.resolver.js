@@ -1,7 +1,20 @@
 const { checkAccessByRole, Roles } = require("../Middleware/auth.roles");
-const {validateEmail,validateContact,validatePassword,validateName,} = require("../utils/validation");
-const {getRepo,checkAuth,checkOwnership,hashPassword,checkVerified,
-            comparePassword,generateToken,formatUserWithRoles,} = require("../utils/helper");
+const {
+  validateEmail,
+  validateContact,
+  validatePassword,
+  validateName,
+} = require("../utils/validation");
+const {
+  getRepo,
+  checkAuth,
+  checkOwnership,
+  hashPassword,
+  checkVerified,
+  comparePassword,
+  generateToken,
+  formatUserWithRoles,
+} = require("../utils/helper");
 const { sendOTP } = require("../verifyotp/send_otp");
 const { AppDataSource } = require("../database/db");
 
@@ -234,53 +247,45 @@ const userResolvers = {
       try {
         checkAccessByRole(context.user, [Roles.Master_Admin]);
 
-        if (page < 1) page = 1;
-        if (limit < 1 || limit > 100) limit = 10;
-
+        page = Math.max(1, page);
+        limit = limit > 0 && limit <= 100 ? limit : 10;
         const skip = (page - 1) * limit;
-        const userRepo = getRepo("User");
 
-        const queryBuilder = userRepo
+        const userRepo = getRepo("User");
+        const qb = userRepo
           .createQueryBuilder("user")
           .leftJoinAndSelect("user.roles", "role");
 
-        if (search && search.trim()) {
-          queryBuilder.where(
-            "(user.firstName LIKE :search OR user.lastName LIKE :search OR user.email LIKE :search OR user.mobileNo LIKE :search)",
+        // Filters
+        if (search?.trim()) {
+          qb.where(
+            `(user.firstName LIKE :search OR user.lastName LIKE :search OR user.email LIKE :search OR user.mobileNo LIKE :search)`,
             { search: `%${search.trim()}%` }
           );
         }
 
-        if (isverified !== undefined && isverified !== null) {
-          if (search && search.trim()) {
-            queryBuilder.andWhere("user.isverified = :isverified", {
-              isverified: Boolean(isverified),
-            });
-          } else {
-            queryBuilder.where("user.isverified = :isverified", {
-              isverified: Boolean(isverified),
-            });
-          }
+        if (isverified !== undefined) {
+          qb[qb.expressionMap.wheres.length ? "andWhere" : "where"](
+            "user.isverified = :isverified",
+            { isverified: Boolean(isverified) }
+          );
         }
 
-        if (userType && userType.trim()) {
-          const condition =
-            search || isverified !== undefined ? "andWhere" : "where";
-          queryBuilder[condition]("user.userType = :userType", {
-            userType: userType.trim(),
-          });
+        if (userType?.trim()) {
+          qb[qb.expressionMap.wheres.length ? "andWhere" : "where"](
+            "user.userType = :userType",
+            { userType: userType.trim() }
+          );
         }
 
         if (roleId) {
-          const condition =
-            search || isverified !== undefined || userType
-              ? "andWhere"
-              : "where";
-          queryBuilder[condition]("role.id = :roleId", {
-            roleId: parseInt(roleId),
-          });
+          qb[qb.expressionMap.wheres.length ? "andWhere" : "where"](
+            "role.id = :roleId",
+            { roleId: parseInt(roleId) }
+          );
         }
 
+        // Sorting
         const validSortFields = [
           "id",
           "firstName",
@@ -296,34 +301,32 @@ const userResolvers = {
           : "created_at";
         const order = sortOrder.toUpperCase() === "ASC" ? "ASC" : "DESC";
 
-        queryBuilder.orderBy(`user.${sortField}`, order);
+        qb.orderBy(`user.${sortField}`, order);
 
-        const totalCount = await queryBuilder.getCount();
-
-        const users = await queryBuilder.skip(skip).take(limit).getMany();
-
-        const formattedUsers = users.map(formatUserWithRoles);
+        // Fetch paginated data and count
+        const [users, totalCount] = await qb
+          .skip(skip)
+          .take(limit)
+          .getManyAndCount();
 
         const totalPages = Math.ceil(totalCount / limit);
-        const hasNextPage = page < totalPages;
-        const hasPreviousPage = page > 1;
 
         return {
-          data: formattedUsers,
+          data: users.map(formatUserWithRoles),
           pagination: {
             currentPage: page,
             limit,
             totalCount,
             totalPages,
-            hasNextPage,
-            hasPreviousPage,
-            nextPage: hasNextPage ? page + 1 : null,
-            previousPage: hasPreviousPage ? page - 1 : null,
+            hasNextPage: page < totalPages,
+            hasPreviousPage: page > 1,
+            nextPage: page < totalPages ? page + 1 : null,
+            previousPage: page > 1 ? page - 1 : null,
           },
           filters: {
             search: search || null,
-            isverified: isverified !== undefined ? isverified : null,
-            userType: userType || null,
+            isverified: isverified ?? null,
+            userType: userType ?? null,
             roleId: roleId || null,
             sortBy: sortField,
             sortOrder: order,
@@ -333,7 +336,6 @@ const userResolvers = {
         throw new Error(`Error fetching users list: ${error.message}`);
       }
     },
-
     userbyid: async (_, { id }, context) => {
       checkAuth(context);
       checkOwnership(context.user, id);
@@ -411,7 +413,11 @@ const userResolvers = {
 
     verifyotp: async (_, { email, otp }) => {
       const repo = AppDataSource.getRepository("User");
-      const user = await repo.findOne({ where: { email } });
+      const roleRepo = AppDataSource.getRepository("Role");
+      const user = await repo.findOne({
+        where: { email },
+        relations: ["roles"],
+      });
       if (!user) throw new Error("User not found");
 
       const now = new Date();
@@ -422,6 +428,8 @@ const userResolvers = {
       user.otp = null;
       user.otpExpiry = null;
       user.isverified = true;
+      // Ensure role_names is filled
+      user.role_names = user.roles?.map((role) => role.name) || [];
       await repo.save(user);
 
       return { message: "OTP verified successfully", user, verified: true };
@@ -477,7 +485,13 @@ const userResolvers = {
     },
 
     updateUser: async (_, { id, input }, context) => {
-       checkAccessByRole(context.user, [Roles.Master_Admin, Roles.Super_Admin, Roles.HR,  Roles.INTERVIEWER, Roles.CANDIDATE]);
+      checkAccessByRole(context.user, [
+        Roles.Master_Admin,
+        Roles.Super_Admin,
+        Roles.HR,
+        Roles.INTERVIEWER,
+        Roles.CANDIDATE,
+      ]);
       checkAuth(context);
       checkOwnership(context.user, id);
 

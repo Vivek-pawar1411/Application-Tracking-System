@@ -29,7 +29,6 @@ const roleTypeDefs = gql`
 
 
   extend type Query {
-    roles: [Role]
     roleById(id: ID!): Role
     roleBySlug(slug: String!): Role
     rolesList(

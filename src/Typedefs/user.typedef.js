@@ -24,7 +24,7 @@ const typeDefs = gql`
   type UserFilterInfo {
     search: String
     isverified: Boolean
-    userType: user
+    userType: user!
     roleId: Int
     sortBy: String!
     sortOrder: String!
