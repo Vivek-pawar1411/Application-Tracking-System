@@ -93,7 +93,7 @@ const roleResolvers = {
     createRole: async (_, { input }, context) => {
       checkAccessByRole(context.user, [Roles.Super_Admin, Roles.Master_Admin]);
 
-      const { name, description, status, userType } = input;
+      const { name, description, status, userType,roleid } = input;
 
       if (typeof status !== "boolean") throw new Error("Status must be a boolean");
 

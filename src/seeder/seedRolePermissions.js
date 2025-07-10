@@ -17,8 +17,13 @@ async function seedRolePermissions() {
     relations: ["permissions"],
   });
 
-  if (!masterAdmin || !superAdmin) {
-    throw new Error("❌ Required roles not found.");
+  const hr = await roleRepo.findOne({
+    where: { id: 3 },
+    relations: ["permissions"],
+  });
+
+  if (!masterAdmin || !superAdmin || !hr) {
+    throw new Error("❌ One or more required roles (master-admin, super-admin, hr) not found.");
   }
 
   // Fetch all permissions
@@ -29,58 +34,19 @@ async function seedRolePermissions() {
   await roleRepo.save(masterAdmin);
   console.log("✅ Assigned all permissions to Master Admin");
 
-  // Assign  permissions to Super Admin
-   superAdmin.permissions = allPermissions;
+  // Assign all permissions to Super Admin
+  superAdmin.permissions = allPermissions;
   await roleRepo.save(superAdmin);
-  console.log("✅ Assigned  permission to Super Admin");
+  console.log("✅ Assigned all permissions to Super Admin");
+
+  // Assign Job CRUD permissions to HR
+  const jobPermissions = allPermissions.filter(
+    (perm) => perm.permission_group.toLowerCase() === "job"
+  );
+
+  hr.permissions = jobPermissions;
+  await roleRepo.save(hr);
+  console.log("✅ Assigned Job CRUD permissions to HR (id = 3)");
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 module.exports = seedRolePermissions;

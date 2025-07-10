@@ -30,7 +30,47 @@ async function seedPermissions() {
       name: "delete",
       permission_group: "User",
       description: "Permission to delete users",
+    }, {
+      name: "create",
+      permission_group: "Job",
+      description: "Permission to create jobs",
     },
+    {
+      name: "read",
+      permission_group: "Job",
+      description: "Permission to view jobs",
+    },
+    {
+      name: "update",
+      permission_group: "Job",
+      description: "Permission to update jobs",
+    },
+    {
+      name: "delete",
+      permission_group: "Job",
+      description: "Permission to delete jobs",
+    },
+    {
+      name: "create",
+      permission_group: "Roles",
+      description: "Permission to create roles",
+    },
+    {
+      name: "read",
+      permission_group: "Roles",
+      description: "Permission to view roles",
+    },
+    {
+      name: "update",
+      permission_group: "Roles",
+      description: "Permission to update roles",
+    },
+    {
+      name: "delete",
+      permission_group: "Roles",
+      description: "Permission to delete roles",
+    },
+    
   ];
 
   for (const perm of permissions) {
