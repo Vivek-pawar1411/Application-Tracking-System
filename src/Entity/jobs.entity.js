@@ -52,9 +52,8 @@ const Jobs = new EntitySchema({
       nullable: false,
     },
     closing_date: {
-      type: "varchar",
-      length: 150,
-      nullable: true,
+      type: "timestamp",
+      nullable: false,
     },
     created_at: {
       type: "timestamp",

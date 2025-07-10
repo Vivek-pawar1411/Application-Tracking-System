@@ -10,6 +10,7 @@ const roleTypeDefs = gql`
     userType: String!
     created_at: String
     updated_at: String
+    roleid: Int!
     
   }
 
@@ -18,6 +19,7 @@ const roleTypeDefs = gql`
     description: String
     status: Boolean!
     userType: String!
+    roleid: Int!
   }
 
   input UpdateRoleInput {
@@ -25,12 +27,13 @@ const roleTypeDefs = gql`
   description: String
   status: Boolean
   userType: String
+  roleid: Int
 }
 
 
   extend type Query {
-    roles: [Role]
-    roleById(id: ID!): Role
+    
+    roleById(roleid: ID!): Role
     roleBySlug(slug: String!): Role
     rolesList(
     page: Int = 1
@@ -73,8 +76,8 @@ type FilterInfo {
 
   extend type Mutation {
     createRole(input: CreateRoleInput!): Role
-    deleteRole(id: ID!): String
-    updateRole(id: ID!, input: UpdateRoleInput!): Role
+    deleteRole(roleid: ID!): String
+    updateRole(roleid: ID!, input: UpdateRoleInput!): Role
   }
 `;
 

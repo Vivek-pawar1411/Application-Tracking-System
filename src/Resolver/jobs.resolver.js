@@ -55,6 +55,7 @@ const jobResolvers = {
         const hasPreviousPage = page > 1;
 
         return {
+          
           data: jobs,
           pagination: {
             currentPage: page,
@@ -101,7 +102,7 @@ const jobResolvers = {
     },
 
     updateJob: async (_, { id, data }, context) => {
-      await checkAccessByRole(context, [Roles.HR]);
+      await checkAccessByRole(context.user, [Roles.HR, Roles.Master_Admin]);
 
       const repo = AppDataSource.getRepository(Jobs);
       const job = await repo.findOne({ where: { id: parseInt(id) } });
@@ -112,7 +113,7 @@ const jobResolvers = {
     },
 
     deleteJob: async (_, { id }, context) => {
-      await checkAccessByRole(context, [Roles.HR]);
+      await checkAccessByRole(context.user, [Roles.HR, Roles.Master_Admin]);
 
       const repo = AppDataSource.getRepository(Jobs);
       const job = await repo.findOne({ where: { id: parseInt(id) } });

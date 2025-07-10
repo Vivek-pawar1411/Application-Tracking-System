@@ -14,6 +14,10 @@ const Role = new EntitySchema({
       length: 150,
       nullable: false,
     },
+    roleid:{
+      type: "int",
+      nullable: false,
+    },
     slug: {
       type: "varchar",
       length: 150,
