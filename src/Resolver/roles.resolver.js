@@ -80,8 +80,8 @@ const roleResolvers = {
       }
     },
 
-    roleById: async (_, { id }) => {
-      return await roleRepository.findOne({ where: { id: parseInt(id) }, relations: ["permissions"] });
+    roleById: async (_, { roleid }) => {
+      return await roleRepository.findOne({ where: { id: parseInt(roleid) }, relations: ["permissions"] });
     },
 
     roleBySlug: async (_, { slug }) => {
@@ -93,7 +93,7 @@ const roleResolvers = {
     createRole: async (_, { input }, context) => {
       checkAccessByRole(context.user, [Roles.Super_Admin, Roles.Master_Admin]);
 
-      const { name, description, status, userType } = input;
+      const { name, description, status, userType,roleid } = input;
 
       if (typeof status !== "boolean") throw new Error("Status must be a boolean");
 
@@ -101,15 +101,15 @@ const roleResolvers = {
       const existingSlug = await roleRepository.findOne({ where: { slug } });
       if (existingSlug) throw new Error("Role with this slug already exists");
 
-      const newRole = roleRepository.create({ name, slug, description, status, userType });
+      const newRole = roleRepository.create({ name, slug, description, status, userType, roleid });
       return await roleRepository.save(newRole);
     },
 
     updateRole: async (_, { id, input }, context) => {
       checkAccessByRole(context.user, [Roles.Super_Admin,Roles.Master_Admin]);
 
-      const role = await roleRepository.findOne({ where: { id: parseInt(id) } });
-      if (!role) throw new Error(`Role with ID ${id} not found`);
+      const role = await roleRepository.findOne({ where: { id: parseInt(roleid) } });
+      if (!role) throw new Error(`Role with ID ${roleid} not found`);
 
       const { name, description, status, userType } = input;
 
@@ -129,14 +129,14 @@ const roleResolvers = {
       return await roleRepository.save(role);
     },
 
-    deleteRole: async (_, { id }, context) => {
+    deleteRole: async (_, { roleid }, context) => {
       checkAccessByRole(context.user, [Roles.ADMIN]);
 
-      const role = await roleRepository.findOne({ where: { id: parseInt(id) } });
-      if (!role) throw new Error(`Role with ID ${id} not found`);
+      const role = await roleRepository.findOne({ where: { roleid: parseInt(roleid) } });
+      if (!role) throw new Error(`Role with ID ${roleid} not found`);
 
       await roleRepository.remove(role);
-      return `Role with ID ${id} has been deleted`;
+      return `Role with ID ${roleid} has been deleted`;
     },
   },
 };

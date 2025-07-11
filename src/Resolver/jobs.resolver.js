@@ -55,6 +55,7 @@ const jobResolvers = {
         const hasPreviousPage = page > 1;
 
         return {
+          
           data: jobs,
           pagination: {
             currentPage: page,

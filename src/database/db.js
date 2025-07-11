@@ -17,7 +17,7 @@ const AppDataSource = new DataSource({
   database: process.env.DB_DATABASE,
   entities: [User, Role, Permission, Token, Jobs, Meeting],
   migrations: ['src/migrations/*.js'],
-  synchronize: true,
+  synchronize:true,
 });
 
 module.exports = { AppDataSource }; // ✅ MUST be exported this way
