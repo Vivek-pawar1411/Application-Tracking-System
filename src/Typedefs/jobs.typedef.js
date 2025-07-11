@@ -19,7 +19,7 @@ const jobTypeDefs = gql`
     vacancy: Int!
     status: Boolean
     posted_date: String!
-    closing_date: String
+    closing_date: String!
     created_at: String
     created_by: User!
   }

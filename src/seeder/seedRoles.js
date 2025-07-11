@@ -36,6 +36,7 @@ async function seedRoles() {
   const predefinedRoles = [
     {
       name: "Master Admin",
+      roleid: 1,
       description: "Full system control access for Master Admin",
       slug: "master-admin",
       status: true,
@@ -43,6 +44,7 @@ async function seedRoles() {
     },
     {
       name: "Super Admin",
+      roleid: 2,
       description: "System-wide administrative privileges",
       slug: "super-admin",
       status: true,

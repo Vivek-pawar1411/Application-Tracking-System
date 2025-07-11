@@ -80,9 +80,22 @@ const roleResolvers = {
       }
     },
 
-    roleById: async (_, { roleid }) => {
-      return await roleRepository.findOne({ where: { id: parseInt(roleid) }, relations: ["permissions"] });
-    },
+    // roleById: async (_, { roleid }) => {
+    //   return await roleRepository.findOne({ where: { id: parseInt(roleid) }, relations: ["permissions"] });
+    // },
+
+   roleById: async (_, { roleid }) => {
+  const id = parseInt(roleid);
+  if (isNaN(id)) {
+    throw new Error("Invalid role ID");
+  }
+
+  return await roleRepository.findOne({
+    where: { id },
+    relations: ["permissions"]
+  });
+},
+ 
 
     roleBySlug: async (_, { slug }) => {
       return await roleRepository.findOne({ where: { slug }, relations: ["permissions"] });
@@ -92,6 +105,7 @@ const roleResolvers = {
   Mutation: {
     createRole: async (_, { input }, context) => {
       checkAccessByRole(context.user, [Roles.Super_Admin, Roles.Master_Admin]);
+      console.log("contextuser",context.user);
 
       const { name, description, status, userType,roleid } = input;
 
@@ -105,7 +119,7 @@ const roleResolvers = {
       return await roleRepository.save(newRole);
     },
 
-    updateRole: async (_, { id, input }, context) => {
+    updateRole: async (_, { roleid, input }, context) => {
       checkAccessByRole(context.user, [Roles.Super_Admin,Roles.Master_Admin]);
 
       const role = await roleRepository.findOne({ where: { id: parseInt(roleid) } });
@@ -130,7 +144,7 @@ const roleResolvers = {
     },
 
     deleteRole: async (_, { roleid }, context) => {
-      checkAccessByRole(context.user, [Roles.ADMIN]);
+      checkAccessByRole(context.user, [Roles.Master_Admin]);
 
       const role = await roleRepository.findOne({ where: { roleid: parseInt(roleid) } });
       if (!role) throw new Error(`Role with ID ${roleid} not found`);
